@@ -42,20 +42,6 @@ void Variablization_Manager::clear_attachment_map()
 void Variablization_Manager::clear_variablization_maps()
 {
 
-    dprint(DT_VARIABLIZATION_MANAGER, "Original_Variable_Manager clearing symbol->variablization map...\n");
-    /* -- Clear symbol->variablization map -- */
-    for (std::map< Symbol*, variablization* >::iterator it = (*sym_to_var_map).begin(); it != (*sym_to_var_map).end(); ++it)
-    {
-        dprint(DT_VM_MAPS, "Clearing %y -> %y(%u)/%y(%u)\n",
-               it->first,
-               it->second->instantiated_symbol, it->second->instantiated_symbol->reference_count,
-               it->second->variablized_symbol,  it->second->variablized_symbol->reference_count);
-        symbol_remove_ref(thisAgent, it->second->instantiated_symbol);
-        symbol_remove_ref(thisAgent, it->second->variablized_symbol);
-        thisAgent->memoryManager->free_with_pool(MP_variablizations, it->second);
-    }
-    sym_to_var_map->clear();
-
     dprint(DT_VARIABLIZATION_MANAGER, "Original_Variable_Manager clearing grounding_id->variablization map...\n");
     /* -- Clear grounding_id->variablization map -- */
     for (std::map< uint64_t, variablization* >::iterator it = (*o_id_to_var_map).begin(); it != (*o_id_to_var_map).end(); ++it)
@@ -94,40 +80,6 @@ variablization* Variablization_Manager::get_variablization(uint64_t index_id)
     }
 }
 
-variablization* Variablization_Manager::get_variablization_for_symbol(std::map< Symbol*, variablization* >* pMap, Symbol* index_sym)
-{
-    std::map< Symbol*, variablization* >::iterator iter = (*pMap).find(index_sym);
-    if (iter != (*pMap).end())
-    {
-        dprint(DT_VM_MAPS, "...found %y in STI variablization table: %y/%y\n", index_sym,
-               iter->second->variablized_symbol, iter->second->instantiated_symbol);
-        return iter->second;
-    }
-    else
-    {
-        dprint(DT_VM_MAPS, "...did not find %y in STI variablization table.\n", index_sym);
-        dprint_variablization_tables(DT_VM_MAPS, 1);
-        return NULL;
-    }
-}
-variablization* Variablization_Manager::get_variablization(Symbol* index_sym)
-{
-    return get_variablization_for_symbol(sym_to_var_map, index_sym);
-}
-
-variablization* Variablization_Manager::get_variablization(test t)
-{
-    assert(t->data.referent);
-    if (t->data.referent->is_sti())
-    {
-        return get_variablization(t->data.referent);
-    }
-    else
-    {
-        return get_variablization(t->identity);
-    }
-}
-
 void Variablization_Manager::clear_o_id_to_ovar_debug_map()
 {
     dprint(DT_VARIABLIZATION_MANAGER, "Original_Variable_Manager clearing ovar_to_o_id_map...\n");
@@ -153,7 +105,7 @@ uint64_t Variablization_Manager::get_existing_o_id(Symbol* orig_var, uint64_t pI
     std::map< Symbol*, uint64_t >::iterator iter_inst;
 
     //        dprint(DT_VM_MAPS, "...Looking  for instantiation id %u\n", inst_id);
-    assert(orig_var && pI_id);
+    assert(orig_var);
 
     iter_sym = rulesym_to_identity_map->find(pI_id);
     if (iter_sym != rulesym_to_identity_map->end())

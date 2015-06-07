@@ -889,6 +889,8 @@ void chunk_instantiation_cleanup (agent* thisAgent, Symbol** prod_name, conditio
     thisAgent->variablizationManager->clear_cached_constraints();
     thisAgent->variablizationManager->clear_o_id_substitution_map();
     thisAgent->variablizationManager->clear_attachment_map();
+    /* Clean up o_ids entries for RHS unbound vars, which we use instantiation id 0 for */
+    thisAgent->variablizationManager->cleanup_for_instantiation_deallocation(0);
 }
 
 bool should_variablize(agent* thisAgent, instantiation* inst)

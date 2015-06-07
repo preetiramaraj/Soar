@@ -18,7 +18,6 @@
 Variablization_Manager::Variablization_Manager(agent* myAgent)
 {
     thisAgent = myAgent;
-    sym_to_var_map = new std::map< Symbol*, variablization* >();
     o_id_to_var_map = new std::map< uint64_t, variablization* >();
 
     rulesym_to_identity_map = new std::map< uint64_t, std::map< Symbol*, uint64_t > >();
@@ -38,7 +37,6 @@ Variablization_Manager::Variablization_Manager(agent* myAgent)
 Variablization_Manager::~Variablization_Manager()
 {
     clear_data();
-    delete sym_to_var_map;
     delete o_id_to_var_map;
     delete constraints;
     delete attachment_points;
@@ -73,7 +71,8 @@ void Variablization_Manager::store_variablization(Symbol* instantiated_sym,
         uint64_t pIdentity)
 {
     variablization* new_variablization;
-    assert(instantiated_sym && variable);
+    assert(instantiated_sym && variable && pIdentity);
+
     dprint(DT_LHS_VARIABLIZATION, "Storing variablization for %y(o%u) to %y.\n",
            instantiated_sym, pIdentity, variable);
 
@@ -83,36 +82,11 @@ void Variablization_Manager::store_variablization(Symbol* instantiated_sym,
     symbol_add_ref(thisAgent, instantiated_sym);
     symbol_add_ref(thisAgent, variable);
 
-    if (instantiated_sym->is_sti())
-    {
-        /* -- STI may have more than one original symbol (mostly due to the fact
-         *    that placeholder variables still exist to handle dot notation).  So, we
-         *    look them up using the identifier symbol instead of the original variable.
-         *
-         *    Note that we also store an entry using the new variable as an index. Later,
-         *    when looking for ungrounded variables in relational tests, the
-         *    identifier symbol will have already been replaced with a variable,
-         *    so we must use the variable instead to look up variablization info.
-         *    This may not be necessary after we resurrect the old NOT code. -- */
+    /* -- A constant symbol is being variablized, so store variablization info
+     *    indexed by the constant's o_id. -- */
+    (*o_id_to_var_map)[pIdentity] = new_variablization;
 
-        (*sym_to_var_map)[instantiated_sym] = new_variablization;
-        (*sym_to_var_map)[variable] = copy_variablization(thisAgent, new_variablization);
-        dprint(DT_VM_MAPS, "Created symbol_to_var_map ([%y] and [%y] to new variablization.\n",
-                        instantiated_sym, variable);
-    }
-    else if (pIdentity)
-    {
-
-        /* -- A constant symbol is being variablized, so store variablization info
-         *    indexed by the constant's o_id. -- */
-        (*o_id_to_var_map)[pIdentity] = new_variablization;
-
-        dprint(DT_VM_MAPS, "Created o_id_to_var_map for %u to new variablization.\n", pIdentity);
-    }
-    else
-    {
-        assert(false);
-    }
+    dprint(DT_VM_MAPS, "Created o_id_to_var_map for %u to new variablization.\n", pIdentity);
     //  print_variablization_table();
 }
 
@@ -139,14 +113,7 @@ void Variablization_Manager::variablize_lhs_symbol(Symbol** sym, uint64_t pIdent
 
     dprint(DT_LHS_VARIABLIZATION, "variablize_lhs_symbol variablizing %y(o%u)...\n", (*sym), pIdentity);
 
-    if (!((*sym)->is_sti()))
-    {
-        var_info = get_variablization(pIdentity);
-    }
-    else
-    {
-        var_info = get_variablization(*sym);
-    }
+    var_info = get_variablization(pIdentity);
     if (var_info)
     {
         /* -- Symbol being passed in is being replaced, so decrease -- */
@@ -208,17 +175,28 @@ void Variablization_Manager::variablize_rhs_symbol(rhs_value pRhs_val)
     /* -- identifiers and unbound vars (which are instantiated as identifiers) are indexed by their symbol
      *    instead of their original variable. --  */
 
-    if (rs->referent->is_sti())
+    if (!rs->o_id && rs->referent->is_sti())
     {
-        dprint(DT_RHS_VARIABLIZATION, "...searching for sti %y in variablization sym table...\n", rs->referent);
-        found_variablization = get_variablization(rs->referent);
+        /* -- First instance of an unbound rhs var -- */
+        dprint(DT_RHS_VARIABLIZATION, "...is unbound variable.\n");
+        prefix[0] = static_cast<char>(tolower(rs->referent->id->name_letter));
+        prefix[1] = 0;
+        var = generate_new_variable(thisAgent, prefix);
+        rs->o_id = thisAgent->variablizationManager->get_or_create_o_id(var, 0);
+
+        dprint(DT_RHS_VARIABLIZATION, "...created new variable for unbound rhs %y.\n", var);
+        store_variablization(rs->referent, var, rs->o_id);
+
+        symbol_remove_ref(thisAgent, rs->referent);
+        rs->referent = var;
+        return;
     }
     else
     {
         if (rs->o_id)
         {
-            dprint(DT_RHS_VARIABLIZATION, "...searching for variablization for %y...\n", get_ovar_for_o_id(rs->o_id));
-                found_variablization = get_variablization(rs->o_id);
+            dprint(DT_RHS_VARIABLIZATION, "...searching for variablization for %y (o%u/%y)...\n", rs->referent, rs->o_id, get_ovar_for_o_id(rs->o_id));
+            found_variablization = get_variablization(rs->o_id);
         }
         else
         {
@@ -237,28 +215,9 @@ void Variablization_Manager::variablize_rhs_symbol(rhs_value pRhs_val)
         symbol_add_ref(thisAgent, found_variablization->variablized_symbol);
         return;
     } else {
-        /* -- Either the variablization manager has never seen this symbol or symbol is ungrounded symbol or literal constant.
-         *    Both cases return 0. -- */
-
-        if (rs->referent->is_sti())
-        {
-            /* -- First instance of an unbound rhs var -- */
-            dprint(DT_RHS_VARIABLIZATION, "...is unbound variable.\n");
-            prefix[0] = static_cast<char>(tolower(rs->referent->id->name_letter));
-            prefix[1] = 0;
-            var = generate_new_variable(thisAgent, prefix);
-
-            dprint(DT_RHS_VARIABLIZATION, "...created new variable for unbound rhs %y.\n", var);
-            store_variablization(rs->referent, var, 0);
-
-            symbol_remove_ref(thisAgent, rs->referent);
-            rs->referent = var;
-        }
-        else
-        {
-            /* -- RHS constant with an original variable that does not map onto a LHS condition.  Do not variablize. -- */
-            dprint(DT_RHS_VARIABLIZATION, "...matched a constant with an ungrounded variable that that did not appear on the LHS.  Not variablizing.\n");
-        }
+        /* -- RHS constant with an original variable that does not map onto a LHS condition.  Do not variablize. -- */
+        dprint(DT_RHS_VARIABLIZATION, "...matched a constant with an ungrounded variable that that did not appear on the LHS.  Not variablizing.\n");
+        assert(!rs->referent->is_sti());
     }
 }
 
@@ -288,7 +247,7 @@ void Variablization_Manager::variablize_equality_tests(test t)
             dprint(DT_LHS_VARIABLIZATION, "Variablizing conjunctive test: ");
             tt = reinterpret_cast<test>(c->first);
             if ((tt->type == EQUALITY_TEST) &&
-                ((tt->identity && tt->data.referent->is_variablizable()) || tt->data.referent->is_sti()))
+                (tt->identity && tt->data.referent->is_variablizable()))
             {
                 variablize_lhs_symbol(&(tt->data.referent), tt->identity);
             }
@@ -300,7 +259,7 @@ void Variablization_Manager::variablize_equality_tests(test t)
     else
     {
         if ((t->type == EQUALITY_TEST) &&
-            ((t->identity && t->data.referent->is_variablizable()) || t->data.referent->is_sti()))
+            (t->identity && t->data.referent->is_variablizable()))
         {
             variablize_lhs_symbol(&(t->data.referent), t->identity);
         }
@@ -328,7 +287,7 @@ void Variablization_Manager::variablize_test_by_lookup(test t, bool pSkipTopLeve
         dprint(DT_CONSTRAINTS, "Not variablizing constraint b/c equality test in second variablization pass.\n");
         return;
     }
-    found_variablization = get_variablization(t);
+    found_variablization = get_variablization(t->identity);
     if (found_variablization)
     {
         // It has been variablized before, so just variablize
@@ -370,7 +329,7 @@ void Variablization_Manager::variablize_tests_by_lookup(test t, bool pSkipTopLev
              *    variablize_test_by_lookup when variablizing constraints collected during
              *    backtracing, since we can just avoid adding them to the condition list. -- */
             tt = reinterpret_cast<test>(c->first);
-            if (test_has_referent(tt) && (tt->identity || tt->data.referent->is_sti()))
+            if (test_has_referent(tt) && tt->identity)
             {
                 variablize_test_by_lookup(tt, pSkipTopLevelEqualities);
             }
@@ -381,7 +340,7 @@ void Variablization_Manager::variablize_tests_by_lookup(test t, bool pSkipTopLev
     }
     else
     {
-        if (test_has_referent(t) && (t->identity || t->data.referent->is_sti()))
+        if (test_has_referent(t) && t->identity)
         {
             variablize_test_by_lookup(t, pSkipTopLevelEqualities);
         }
@@ -460,11 +419,11 @@ void Variablization_Manager::variablize_rl_test(test t)
     }
     else
     {
-        if (test_has_referent(t) && (t->data.referent->is_sti()))
+        if (test_has_referent(t))
         {
             dprint(DT_RL_VARIABLIZATION, "Variablizing test type %s with referent %y\n",
                    test_type_to_string(t->type), t->data.referent);
-            thisAgent->variablizationManager->variablize_lhs_symbol(&(t->data.referent), 0);
+            thisAgent->variablizationManager->variablize_lhs_symbol(&(t->data.referent), t->identity);
         }
         else
         {

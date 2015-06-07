@@ -160,30 +160,15 @@ void Variablization_Manager::print_constraints(TraceMode mode)
 void Variablization_Manager::print_variablization_tables(TraceMode mode, int whichTable)
 {
     dprint(mode, "------------------------------------\n");
-    if ((whichTable == 0) || (whichTable == 1) || (whichTable == 3))
+    dprint(mode, "== O_ID -> Variablization ==\n");
+    if (o_id_to_var_map->size() == 0)
     {
-        dprint(mode, "== Symbol -> Variablization ==\n");
-        if (sym_to_var_map->size() == 0)
-        {
-            dprint(mode, "EMPTY MAP\n");
-        }
-        for (std::map< Symbol*, variablization* >::iterator it = (*sym_to_var_map).begin(); it != (*sym_to_var_map).end(); ++it)
-        {
-            dprint(mode, "%y -> %y/%y\n", it->first, it->second->variablized_symbol, it->second->instantiated_symbol);
-        }
+        dprint(mode, "EMPTY MAP\n");
     }
-    if ((whichTable == 0) || (whichTable == 2) || (whichTable == 3))
+    for (std::map< uint64_t, variablization* >::iterator it = (*o_id_to_var_map).begin(); it != (*o_id_to_var_map).end(); ++it)
     {
-        dprint(mode, "== O_ID -> Variablization ==\n");
-        if (o_id_to_var_map->size() == 0)
-        {
-            dprint(mode, "EMPTY MAP\n");
-        }
-        for (std::map< uint64_t, variablization* >::iterator it = (*o_id_to_var_map).begin(); it != (*o_id_to_var_map).end(); ++it)
-        {
-            dprint(mode, "o%u -> %y/%y\n", it->first,
-                   it->second->variablized_symbol, it->second->instantiated_symbol);
-        }
+        dprint(mode, "o%u -> %y/%y\n", it->first,
+            it->second->variablized_symbol, it->second->instantiated_symbol);
     }
     dprint(mode, "------------------------------------\n");
 }

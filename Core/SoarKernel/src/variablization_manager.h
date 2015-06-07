@@ -65,6 +65,8 @@ class Variablization_Manager
 {
     public:
 
+        /* Instantiation id 0 is reserved for rhs unbound vars that need to
+         * generate temporary identities */
         uint64_t get_new_inst_id() { return (++inst_id_counter); };
 
         void variablize_condition_list(condition* top_cond, bool pInNegativeCondition = false);
@@ -117,10 +119,7 @@ class Variablization_Manager
 
         void store_variablization(Symbol* instantiated_sym, Symbol* variable, uint64_t pIdentity);
 
-        variablization* get_variablization_for_symbol(std::map< Symbol*, variablization* >* pMap, Symbol* index_sym);
         variablization* get_variablization(uint64_t index_id);
-        variablization* get_variablization(test equality_test);
-        variablization* get_variablization(Symbol* index_sym);
 
         void variablize_lhs_symbol(Symbol** sym, uint64_t pIdentity);
         void variablize_rhs_symbol(rhs_value pRhs_val);
@@ -163,7 +162,6 @@ class Variablization_Manager
 
         /* -- Look-up tables for LHS variablization -- */
         std::map< uint64_t, variablization* >*   o_id_to_var_map;
-        std::map< Symbol*, variablization* >*    sym_to_var_map;
 
         std::list< constraint* >* constraints;
         std::map< uint64_t, attachment_point* >* attachment_points;

@@ -222,7 +222,8 @@ void backtrace_through_instantiation(agent* thisAgent,
         lId = equality_test_found_in_test(trace_cond->data.tests.id_test);
         lAttr = equality_test_found_in_test(trace_cond->data.tests.attr_test);
         lValue = equality_test_found_in_test(trace_cond->data.tests.value_test);
-        if (!ovars_matched_syms.id->is_sti() && o_ids_to_replace.id && lId)
+        assert(lId && lAttr && lValue); // Remove tests below, if this is good.  Should always have equalities.
+        if (o_ids_to_replace.id && lId)
         {
             if (lId->identity)
             {
@@ -234,7 +235,7 @@ void backtrace_through_instantiation(agent* thisAgent,
             thisAgent->variablizationManager->add_identity_unification(o_ids_to_replace.id, lId->identity);
             dprint_o_id_substitution_map(DT_IDENTITY_PROP);
         }
-        if (!ovars_matched_syms.attr->is_sti() && o_ids_to_replace.attr && lAttr)
+        if (o_ids_to_replace.attr && lAttr)
         {
             if (lAttr->identity)
             {
@@ -246,7 +247,7 @@ void backtrace_through_instantiation(agent* thisAgent,
             thisAgent->variablizationManager->add_identity_unification(o_ids_to_replace.attr, lAttr->identity);
             dprint_o_id_substitution_map(DT_IDENTITY_PROP);
         }
-        if (!ovars_matched_syms.value->is_sti() && o_ids_to_replace.value && lValue)
+        if (o_ids_to_replace.value && lValue)
         {
             if (lValue->identity)
             {

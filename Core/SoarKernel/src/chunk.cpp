@@ -641,8 +641,8 @@ void make_clones_of_results(agent* thisAgent, preference* results,
     for (result_p = results; result_p != NIL; result_p = result_p->next_result)
     {
         /* --- copy the preference --- */
-        p = make_preference(thisAgent, result_p->type, result_p->id, result_p->attr,
-                            result_p->value, result_p->referent,
+        p = make_preference(thisAgent, result_p->type,
+                            soar_module::symbols_for_pref(result_p->id, result_p->attr, result_p->value, result_p->referent),
                             result_p->o_ids, result_p->rhs_funcs);
         symbol_add_ref(thisAgent, p->id);
         symbol_add_ref(thisAgent, p->attr);
@@ -889,7 +889,8 @@ void chunk_instantiation_cleanup (agent* thisAgent, Symbol** prod_name, conditio
     thisAgent->variablizationManager->clear_cached_constraints();
     thisAgent->variablizationManager->clear_o_id_substitution_map();
     thisAgent->variablizationManager->clear_attachment_map();
-    /* Clean up o_ids entries for RHS unbound vars, which we use instantiation id 0 for */
+    thisAgent->variablizationManager->clear_goals_tested();
+    /* Clean up o_ids entries for RHS unbound vars, which we use instantiation id 0 for lookup*/
     thisAgent->variablizationManager->cleanup_for_instantiation_deallocation(0);
 }
 
@@ -1065,7 +1066,7 @@ void chunk_instantiation(agent* thisAgent, instantiation* inst, bool allow_learn
             print_string(thisAgent, " ");
         }
         backtrace_through_instantiation(thisAgent, pref->inst, grounds_level, NULL, &reliable, 0,
-            soar_module::symbol_triple_struct(pref->id, pref->attr, pref->value), pref->o_ids);
+            soar_module::symbols_for_pref(pref->id, pref->attr, pref->value, pref->referent), pref->o_ids);
 
         if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM])
         {
@@ -1367,7 +1368,6 @@ chunking_abort:
 void init_chunker(agent* thisAgent)
 {
     thisAgent->memoryManager->init_memory_pool(MP_chunk_cond, sizeof(chunk_cond), "chunk condition");
-    thisAgent->memoryManager->init_memory_pool(MP_variablizations, sizeof(variablization_struct), "variablizations");
     thisAgent->memoryManager->init_memory_pool(MP_constraints, sizeof(constraint_struct), "constraints");
     thisAgent->memoryManager->init_memory_pool(MP_attachments, sizeof(attachment_struct), "attachments");
     init_chunk_cond_set(&thisAgent->negated_set);

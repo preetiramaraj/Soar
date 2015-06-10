@@ -60,15 +60,15 @@ const char* preference_name[] =
    and are optional/have default nil values.
 ---------------------------------------------------------------------- */
 
-preference* make_preference(agent* thisAgent, byte type, Symbol* id, Symbol* attr,
-                            Symbol* value, Symbol* referent,
-                            const soar_module::identity_triple o_ids,
+preference* make_preference(agent* thisAgent, byte type,
+                            const soar_module::symbols_for_pref syms,
+                            const soar_module::identities_for_pref o_ids,
                             const soar_module::rhs_triple rhs_funcs)
 {
     preference* p;
-    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value a is %y %r\n", id, rhs_funcs.id);
-    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value b is %y %r\n", attr, rhs_funcs.attr);
-    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value c is %y %r\n", value, rhs_funcs.value);
+    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value a is %y %r\n", syms.id, rhs_funcs.id);
+    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value b is %y %r\n", syms.attr, rhs_funcs.attr);
+    dprint(DT_RHS_VARIABLIZATION, "%fRHS Value c is %y %r\n", syms.value, rhs_funcs.value);
 
     thisAgent->memoryManager->allocate_with_pool(MP_preference, &p);
     p->type = type;
@@ -76,10 +76,10 @@ preference* make_preference(agent* thisAgent, byte type, Symbol* id, Symbol* att
     p->o_supported = false;
     p->on_goal_list = false;
     p->reference_count = 0;
-    p->id = id;
-    p->attr = attr;
-    p->value = value;
-    p->referent = referent;
+    p->id = syms.id;
+    p->attr = syms.attr;
+    p->value = syms.value;
+    p->referent = syms.referent;
     p->slot = NIL;
     p->total_preferences_for_candidate = 0;
     p->numeric_value = 0;
@@ -102,6 +102,7 @@ preference* make_preference(agent* thisAgent, byte type, Symbol* id, Symbol* att
     p->o_ids.id = o_ids.id;
     p->o_ids.attr = o_ids.attr;
     p->o_ids.value = o_ids.value;
+    p->o_ids.referent = o_ids.referent;
 
     p->rhs_funcs.id = rhs_funcs.id;
     p->rhs_funcs.attr = rhs_funcs.attr;

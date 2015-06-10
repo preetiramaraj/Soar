@@ -29,8 +29,8 @@ typedef test_info* test;
 typedef struct symbol_struct Symbol;
 namespace soar_module
 {
-    typedef struct symbol_triple_struct symbol_triple;
-    typedef struct identity_triple_struct identity_triple;
+    typedef struct symbol_prefs_struct symbols_for_pref;
+    typedef struct identity_pref_struct identities_for_pref;
 }
 
 #define BUFFER_PROD_NAME_SIZE 256
@@ -57,8 +57,8 @@ extern void backtrace_through_instantiation(agent* thisAgent,
         condition* trace_cond,
         bool* reliable,
         int indent,
-        soar_module::symbol_triple ovars_matched_syms,
-        soar_module::identity_triple parent_cond_o_ids);
+        const soar_module::symbols_for_pref ovars_matched_syms,
+        const soar_module::identities_for_pref parent_cond_o_ids);
 
 // To print out the message similar to: a chunk was not created because...
 void report_local_negation(agent* thisAgent, condition* c);

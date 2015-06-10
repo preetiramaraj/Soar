@@ -1141,11 +1141,11 @@ void add_constraints_and_identities(agent* thisAgent,
 {
     rete_test* rt = node->b.posneg.other_tests;
 
-    if (additional_tests == JUST_INEQUALITIES)
-    {
-        add_inequalities(thisAgent, node, cond, w, nvn, pI_id, additional_tests);
-        return;
-    }
+//    if (additional_tests == JUST_INEQUALITIES)
+//    {
+//        add_inequalities(thisAgent, node, cond, w, nvn, pI_id, additional_tests);
+//        return;
+//    }
     /* --- Store original referent information.  Note that sometimes the
      *     original referent equality will be stored in the beta nodes extra tests
      *     data structure rather than the alpha memory --- */
@@ -1205,7 +1205,7 @@ void add_constraints_and_identities(agent* thisAgent,
             chunk_test->data.disjunction_list = copy_symbol_list_adding_references(thisAgent, rt->data.disjunction_list);
             has_referent = false;
         } else {
-            if (test_is_constant_relational_test(rt->type))
+            if (test_is_constant_relational_test(rt->type) && additional_tests != JUST_INEQUALITIES)
             {
                 dprint(DT_ADD_ADDITIONALS, "Creating constant relational test.\n");
                 test_type = relational_test_type_to_test_type(kind_of_relational_test(rt->type));
@@ -1219,9 +1219,27 @@ void add_constraints_and_identities(agent* thisAgent,
                 test ref_test = var_test_bound_in_reconstructed_conds(thisAgent, cond,
                     rt->data.variable_referent.field_num,
                     rt->data.variable_referent.levels_up);
-                chunk_test = make_test(thisAgent, ref_test->data.referent, test_type);
-                chunk_test->identity = ref_test->identity;
-                dprint(DT_ADD_ADDITIONALS, "Created relational test for chunk: %t [%g].\n", chunk_test, chunk_test);
+                Symbol* referent = ref_test->data.referent;
+                if (additional_tests == JUST_INEQUALITIES)
+                {
+                    if (((test_type == EQUALITY_TEST) || (test_type == NOT_EQUAL_TEST))
+                        && (referent != NIL)
+                        && referent->is_identifier())
+                    {
+                        chunk_test = make_test(thisAgent, referent, test_type);
+                        dprint(DT_RL_VARIABLIZATION, "Creating valid relational test for template %t [%g].\n", chunk_test, chunk_test);
+                    }
+                    else
+                    {
+                        dprint(DT_RL_VARIABLIZATION, "Relational test is not a valid template relational test.  Ignoring.\n");
+                    }
+                }
+                else if (additional_tests == ALL_ORIGINALS)
+                {
+                    chunk_test = make_test(thisAgent, referent, test_type);
+                    chunk_test->identity = ref_test->identity;
+                    dprint(DT_ADD_ADDITIONALS, "Created relational test for chunk: %t [%g].\n", chunk_test, chunk_test);
+                }
             }
         }
         if (chunk_test)

@@ -192,6 +192,8 @@ struct idSymbol    : public Symbol
     struct slot_struct* operator_slot;
     struct preference_struct* preferences_from_goal;
 
+    Symbol* goal_variablization;
+
     Symbol* reward_header;
     struct rl_data_struct* rl_info;
 

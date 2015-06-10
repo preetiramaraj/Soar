@@ -21,13 +21,6 @@ typedef char* rhs_value;
 typedef struct chunk_cond_struct chunk_cond;
 tc_number get_new_tc_number(agent* thisAgent);
 
-typedef struct variablization_struct
-{
-    Symbol* instantiated_symbol;
-    Symbol* variablized_symbol;
-    variablization_struct() : instantiated_symbol(NULL), variablized_symbol(NULL) {}
-} variablization;
-
 typedef struct constraint_struct
 {
     test eq_test;
@@ -75,13 +68,14 @@ class Variablization_Manager
         void cleanup_for_instantiation_deallocation(uint64_t pI_id);
         void clear_variablization_maps();
         void clear_attachment_map();
+        void clear_goals_tested();
         void clear_cached_constraints();
         void clear_o_id_substitution_map();
         void clear_data();
         void reinit();
 
-        uint64_t get_existing_o_id(Symbol* orig_var, uint64_t pI_id);
-        uint64_t get_or_create_o_id(Symbol* orig_var, uint64_t pI_id);
+        uint64_t get_existing_o_id(Symbol* orig_var, uint64_t pI_id, Symbol* instantiated_sym);
+        uint64_t get_or_create_o_id(Symbol* orig_var, uint64_t pI_id, Symbol* instantiated_sym);
         Symbol * get_ovar_for_o_id(uint64_t o_id);
 
         void reset_constraint_found_tc_num() { tc_num_found = get_new_tc_number(thisAgent); };
@@ -110,6 +104,7 @@ class Variablization_Manager
         void print_ovar_to_o_id_map(TraceMode mode);
         void print_o_id_substitution_map(TraceMode mode);
         void print_o_id_to_ovar_debug_map(TraceMode mode);
+        void print_goals_tested(TraceMode mode);
 
         Variablization_Manager(agent* myAgent);
         ~Variablization_Manager();
@@ -119,7 +114,7 @@ class Variablization_Manager
 
         void store_variablization(Symbol* instantiated_sym, Symbol* variable, uint64_t pIdentity);
 
-        variablization* get_variablization(uint64_t index_id);
+        Symbol* get_variablization(uint64_t index_id, Symbol* instantiated_sym);
 
         void variablize_lhs_symbol(Symbol** sym, uint64_t pIdentity);
         void variablize_rhs_symbol(rhs_value pRhs_val);
@@ -161,10 +156,11 @@ class Variablization_Manager
         std::map< uint64_t, uint64_t >*                         unification_map;
 
         /* -- Look-up tables for LHS variablization -- */
-        std::map< uint64_t, variablization* >*   o_id_to_var_map;
+        std::map< uint64_t, Symbol* >*   o_id_to_var_map;
 
         std::list< constraint* >* constraints;
         std::map< uint64_t, attachment_point* >* attachment_points;
+        std::set< Symbol* >* goals_tested;
 
         /* -- Table of previously seen conditions.  Used to determine whether to
          *    merge or eliminate positive conditions on the LHS of a chunk. -- */

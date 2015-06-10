@@ -432,6 +432,8 @@ Symbol* make_new_identifier(agent* thisAgent, char name_letter, goal_stack_level
     sym->smem_time_id = EPMEM_MEMID_NONE;
     sym->smem_valid = NIL;
 
+    sym->goal_variablization = NIL;
+
     sym->rl_trace = NIL;
 
     sym->fc = NIL;

@@ -49,7 +49,8 @@ namespace soar_module
         Symbol* attr;
         Symbol* value;
 
-        symbol_triple_struct(Symbol* new_id = NULL, Symbol* new_attr = NULL, Symbol* new_value = NULL): id(new_id), attr(new_attr), value(new_value) {}
+        symbol_triple_struct(Symbol* new_id = NULL, Symbol* new_attr = NULL, Symbol* new_value = NULL)
+        : id(new_id), attr(new_attr), value(new_value) {}
     } symbol_triple;
     typedef std::list< symbol_triple* > symbol_triple_list;
 
@@ -59,8 +60,31 @@ namespace soar_module
         uint64_t attr;
         uint64_t value;
 
-        identity_triple_struct(uint64_t new_id = 0, uint64_t new_attr = 0, uint64_t new_value = 0): id(new_id), attr(new_attr), value(new_value) {}
+        identity_triple_struct(uint64_t new_id = 0, uint64_t new_attr = 0, uint64_t new_value = 0)
+        : id(new_id), attr(new_attr), value(new_value) {}
     } identity_triple;
+
+    typedef struct symbol_prefs_struct
+    {
+        Symbol* id;
+        Symbol* attr;
+        Symbol* value;
+        Symbol* referent;
+
+        symbol_prefs_struct(Symbol* new_id = NULL, Symbol* new_attr = NULL, Symbol* new_value = NULL, Symbol* new_ref = 0)
+        : id(new_id), attr(new_attr), value(new_value), referent(new_ref) {}
+    } symbols_for_pref;
+
+    typedef struct identity_pref_struct
+    {
+        uint64_t id;
+        uint64_t attr;
+        uint64_t value;
+        uint64_t referent;
+
+        identity_pref_struct(uint64_t new_id = 0, uint64_t new_attr = 0, uint64_t new_value = 0, uint64_t new_ref = 0)
+        : id(new_id), attr(new_attr), value(new_value), referent(new_ref) {}
+    } identities_for_pref;
 
     typedef struct rhs_triple_struct
     {

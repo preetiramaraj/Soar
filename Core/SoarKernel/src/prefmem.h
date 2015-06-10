@@ -138,7 +138,7 @@ typedef struct preference_struct
      *    used by the chunker to match up rhs symbols with the correct
      *    lhs one, since the instantiated value is not sufficient. -- */
 
-    soar_module::identity_triple o_ids;
+    soar_module::identities_for_pref o_ids;
     soar_module::rhs_triple rhs_funcs;
 
     struct slot_struct* slot;
@@ -171,9 +171,9 @@ typedef struct preference_struct
 
 extern bool remove_preference_from_clones(agent* thisAgent, preference* pref);
 
-extern preference* make_preference(agent* thisAgent, byte type, Symbol* id, Symbol* attr,
-                                   Symbol* value, Symbol* referent,
-                                   const soar_module::identity_triple o_ids = soar_module::identity_triple(0, 0, 0),
+extern preference* make_preference(agent* thisAgent, byte type,
+                                   const soar_module::symbols_for_pref syms,
+                                   const soar_module::identities_for_pref o_ids = soar_module::identities_for_pref(0, 0, 0, 0),
                                    const soar_module::rhs_triple rhs_funcs = soar_module::rhs_triple(NULL, NULL, NULL));
 
 extern bool possibly_deallocate_preference_and_clones(agent* thisAgent, preference* pref);

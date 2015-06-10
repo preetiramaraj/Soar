@@ -538,9 +538,10 @@ preference* execute_action(agent* thisAgent, action* a, struct token_struct* tok
                            id, attr);
         goto abort_execute_action;
     }
-    /* -- We don't need to store original vars for referents bc they are operator preference knowledge and should always be operator IDs -- */
-    uint64_t oid_id, oid_attr, oid_value;
-    rhs_value f_id, f_attr, f_value;
+
+    /* Populate identity and rhs_function stuff */
+    uint64_t oid_id, oid_attr, oid_value, oid_referent;
+    rhs_value f_id, f_attr, f_value, f_referent;
     if (rule_action)
     {
         if (rule_action->id)
@@ -584,6 +585,7 @@ preference* execute_action(agent* thisAgent, action* a, struct token_struct* tok
                 f_value = rule_action->value;
                 rule_action->value = NULL;
             } else {
+                rhs_symbol temp = rhs_value_to_rhs_symbol(rule_action->value);
                 oid_value = rhs_value_to_o_id(rule_action->value);
                 f_value = 0;
             }
@@ -591,9 +593,18 @@ preference* execute_action(agent* thisAgent, action* a, struct token_struct* tok
             oid_value = 0;
             f_value = 0;
         }
+        if (rule_action->referent)
+        {
+                oid_referent = rhs_value_to_o_id(rule_action->referent);
+                f_referent = 0;
+        } else {
+            oid_referent = 0;
+            f_referent = 0;
+        }
     }
-    return make_preference(thisAgent, a->preference_type, id, attr, value, referent,
-                           soar_module::identity_triple(oid_id, oid_attr, oid_value),
+    return make_preference(thisAgent, a->preference_type,
+                           soar_module::symbols_for_pref(id, attr, value, referent),
+                           soar_module::identities_for_pref(oid_id, oid_attr, oid_value, oid_referent),
                            soar_module::rhs_triple(f_id, f_attr, f_value));
 
 abort_execute_action: /* control comes here when some error occurred */
@@ -1026,8 +1037,8 @@ void create_instantiation(agent* thisAgent, production* prod,
             {
                 wme* tempwme = glbDeepCopyWMEs;
                 pref = make_preference(thisAgent, a->preference_type,
-                                       tempwme->id, tempwme->attr, tempwme->value,
-                                       NULL, tempwme->preference->o_ids, tempwme->preference->rhs_funcs);
+                                       soar_module::symbols_for_pref(tempwme->id, tempwme->attr, tempwme->value,
+                                       NULL), tempwme->preference->o_ids, tempwme->preference->rhs_funcs);
                 glbDeepCopyWMEs = tempwme->next;
                 deallocate_wme(thisAgent, tempwme);
             }

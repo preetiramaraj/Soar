@@ -15,8 +15,8 @@
 #ifdef SOAR_RELEASE_VERSION
 #define DEBUG_UNITTEST_SETTINGS
 #else
-#define DEBUG_FREE_SETTINGS
-//#define DEBUG_UNITTEST_SETTINGS
+//#define DEBUG_FREE_SETTINGS
+#define DEBUG_UNITTEST_SETTINGS
 #endif
 /* These are just for experimental purposes.  Should not be commented out */
 #define EBC_MERGE_CONDITIONS
@@ -57,11 +57,11 @@
 #define TRACE_Init_DT_VM_MAPS                     true
 #define TRACE_Init_DT_BACKTRACE                   false
 #define TRACE_Init_DT_BUILD_CHUNK_CONDS           false
-#define TRACE_Init_DT_IDENTITY_PROP               true
-#define TRACE_Init_DT_UNIFICATION                 true
+#define TRACE_Init_DT_IDENTITY_PROP               false
+#define TRACE_Init_DT_UNIFICATION                 false
 #define TRACE_Init_DT_CONSTRAINTS                 false
 #define TRACE_Init_DT_LHS_VARIABLIZATION          true
-#define TRACE_Init_DT_RHS_VARIABLIZATION          true
+#define TRACE_Init_DT_RHS_VARIABLIZATION          false
 #define TRACE_Init_DT_NCC_VARIABLIZATION          false
 #define TRACE_Init_DT_RL_VARIABLIZATION           false
 #define TRACE_Init_DT_UNGROUNDED_STI              false

@@ -2856,18 +2856,18 @@ void add_varname_identity_to_test(agent* thisAgent, varnames* vn, test t, uint64
     if (varnames_is_one_var(vn))
     {
         temp = varnames_to_one_var(vn);
-        t->identity = thisAgent->variablizationManager->get_or_create_o_id(temp, pI_id);
+        t->identity = thisAgent->variablizationManager->get_or_create_o_id(temp, pI_id, t->data.referent);
         dprint(DT_ADD_ADDITIONALS, "add_varname_identity_to_test adding identity o%u for varname %s from one_var.\n", t->identity, temp->var->name);
     }
     else
     {
-        /* Not sure if we can have a varlist when this is called from add_additionals.  Should only
+        /* MToDo | Not sure if we can have a varlist when this is called from add_additionals.  Should only
          * be called in cases where there is one equality test.  Remove.*/
         assert(false);
         for (c = varnames_to_var_list(vn); c != NIL; c = c->rest)
         {
             temp = static_cast<Symbol*>(c->first);
-            t->identity = thisAgent->variablizationManager->get_or_create_o_id(temp, pI_id);
+            t->identity = thisAgent->variablizationManager->get_or_create_o_id(temp, pI_id, t->data.referent);
             dprint(DT_ADD_ADDITIONALS, "add_varname_identity_to_test adding identity o%u for varname %s from varlist!\n", t->identity, temp->var->name);
         }
     }

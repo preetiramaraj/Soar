@@ -111,7 +111,6 @@ MP_epmem_literal,
 MP_epmem_pedge,
 MP_epmem_uedge,
 MP_epmem_interval,
-MP_variablizations,
 MP_constraints,
 MP_attachments,
 num_memory_pools
@@ -192,6 +191,10 @@ enum TestType
     EQUALITY_TEST = 11,
     NUM_TEST_TYPES
 };
+
+/* Two base identity sets used by EBC */
+#define NULL_IDENTITY_SET 0
+#define ISAGOAL_IDENTITY 1
 
 /* -------------------------------
       Types of Productions

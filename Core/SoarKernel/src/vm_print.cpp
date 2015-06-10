@@ -139,6 +139,22 @@ void Variablization_Manager::print_attachment_points(TraceMode mode)
     }
 
 }
+void Variablization_Manager::print_goals_tested(TraceMode mode)
+{
+    dprint(mode, "------------------------------------\n");
+    dprint(mode, "    Goals tested in chunk\n");
+    dprint(mode, "------------------------------------\n");
+    if (goals_tested->empty())
+    {
+        dprint(mode, "NO GOALS TESTED\n");
+    }
+    for (std::set< Symbol* >::iterator it = goals_tested->begin(); it != goals_tested->end(); ++it)
+    {
+        dprint(mode, "%y\n", (*it));
+    }
+
+    dprint(mode, "------------------------------------\n");
+}
 void Variablization_Manager::print_constraints(TraceMode mode)
 {
     dprint(mode, "------------------------------------\n");
@@ -165,10 +181,9 @@ void Variablization_Manager::print_variablization_tables(TraceMode mode, int whi
     {
         dprint(mode, "EMPTY MAP\n");
     }
-    for (std::map< uint64_t, variablization* >::iterator it = (*o_id_to_var_map).begin(); it != (*o_id_to_var_map).end(); ++it)
+    for (std::map< uint64_t, Symbol* >::iterator it = (*o_id_to_var_map).begin(); it != (*o_id_to_var_map).end(); ++it)
     {
-        dprint(mode, "o%u -> %y/%y\n", it->first,
-            it->second->variablized_symbol, it->second->instantiated_symbol);
+        dprint(mode, "o%u -> %y\n", it->first, it->second);
     }
     dprint(mode, "------------------------------------\n");
 }

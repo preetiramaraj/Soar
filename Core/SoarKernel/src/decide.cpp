@@ -573,6 +573,13 @@ void garbage_collect_id(agent* thisAgent, Symbol* id)
     print_with_symbols(thisAgent, "\n*** Garbage collecting id: %y", id);
 #endif
 
+    /* Experimental */
+    if (id->is_lti())
+    {
+        id->id->level = SMEM_LTI_UNKNOWN_LEVEL;
+        id->id->promotion_level = SMEM_LTI_UNKNOWN_LEVEL;
+        id->id->could_be_a_link_from_below = false;
+    }
     /* Note--for goal/impasse id's, this does not remove the impasse wme's.
         This is handled by remove_existing_such-and-such... */
 

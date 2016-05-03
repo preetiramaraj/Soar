@@ -23,7 +23,7 @@
  * Comment the following line out to start with settings that are equivalent to
  * standard Soar printing.  To completely compile out debug statements, make
  * sure SOAR_RELEASE_VERSION is defined in kernel.h */
-//#define DEBUG_OUTPUT_ON
+#define DEBUG_OUTPUT_ON
 
 #include "kernel.h"
 

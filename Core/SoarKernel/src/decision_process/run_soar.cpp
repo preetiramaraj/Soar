@@ -1527,7 +1527,7 @@ extern char* getenv();
                 cycle. This helps keep the gSKI interface a little saner.
 */
 
-void init_agent_memory(agent* thisAgent)
+void init_agent_memory(agent* thisAgent, bool suppressCallback)
 {
 
     /* The following code was taken from the do_one_top_level_phase function

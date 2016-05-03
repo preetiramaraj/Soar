@@ -40,7 +40,7 @@ typedef void* soar_callback_data;
 typedef void* soar_call_data;
 
 extern void init_soar_io(agent* thisAgent);
-extern void do_input_cycle(agent* thisAgent);
+extern void do_input_cycle(agent* thisAgent, bool suppressCallback = false);
 extern void do_output_cycle(agent* thisAgent);
 
 extern void inform_output_module_of_wm_changes(agent* thisAgent,

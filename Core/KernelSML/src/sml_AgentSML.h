@@ -193,6 +193,7 @@ namespace sml
             // Used for update world events
             bool            m_CompletedOutputPhase ;
             bool            m_GeneratedOutput ;
+            bool            m_In_Reinitialize ;
             uint64_t        m_OutputCounter ;
             
             RhsFunction*    m_pRhsInterrupt ;
@@ -581,6 +582,15 @@ namespace sml
                 return m_GeneratedOutput ;
             }
             
+            void SetInReinitialize(bool state)
+            {
+                m_In_Reinitialize = state ;
+            }
+            bool InReinitialize()
+            {
+                return m_In_Reinitialize ;
+            }
+
             void SetInitialOutputCount(uint64_t count)
             {
                 m_OutputCounter = count ;

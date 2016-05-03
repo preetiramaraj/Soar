@@ -45,7 +45,7 @@
 #include <map>
 #include <sstream>
 
-//#define DEBUG_TRACE_REFCOUNT_FOR "S1"
+#define DEBUG_TRACE_REFCOUNT_FOR "R4"
 
 typedef signed short goal_stack_level;
 typedef struct instantiation_struct instantiation;
@@ -503,10 +503,10 @@ inline void symbol_add_ref(agent* thisAgent, Symbol* x)
     std::string strName(x->to_string());
     if (strName == DEBUG_TRACE_REFCOUNT_FOR)
     {
-        std::string caller_string = get_stacktrace("add_ref");
 //        dprint(DT_ID_LEAKING, "-- | %s(%u) | %s++\n", strName.c_str(), x->reference_count, caller_string.c_str());
         if (is_DT_mode_enabled(DT_ID_LEAKING))
         {
+            std::string caller_string = get_stacktrace("add_ref");
             std::cout << "++ | " << strName.c_str() << " |" << x->reference_count << " | " << caller_string.c_str() << "\n";
         }
     }
@@ -537,10 +537,10 @@ inline void symbol_remove_ref(agent* thisAgent, Symbol* x)
     std::string strName(x->to_string());
     if (strName == DEBUG_TRACE_REFCOUNT_FOR)
     {
-        std::string caller_string = get_stacktrace("remove_ref");
 //        dprint(DT_ID_LEAKING, "-- | %s(%u) | %s--\n", strName.c_str(), x->reference_count, caller_string.c_str());
         if (is_DT_mode_enabled(DT_ID_LEAKING))
         {
+            std::string caller_string = get_stacktrace("remove_ref");
             std::cout << "-- | " << strName.c_str() << " | " << x->reference_count << " | " << caller_string.c_str() << "\n";
         }
     }

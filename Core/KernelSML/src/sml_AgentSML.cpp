@@ -37,6 +37,7 @@ AgentSML::AgentSML(KernelSML* pKernelSML, agent* pAgent)
 {
     m_pKernelSML = pKernelSML ;
     m_SuppressRunEndsEvent = false ;
+    m_In_Reinitialize = false;
 
     m_agent = pAgent ;
 
@@ -258,7 +259,7 @@ bool AgentSML::Reinitialize()
     // Can't use smlEVENT_AFTER_AGENT_REINITIALIZED because that happens too late.
     this->m_OutputListener.SendOutputInitEvent();
 
-    init_agent_memory(m_agent);
+    init_agent_memory(m_agent, true);
 
     InitializeRuntimeState() ;
 

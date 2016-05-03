@@ -70,7 +70,7 @@ void reset_max_stats(agent* thisAgent);
    agent's working memory. (This is a modification for the gSKI project).
 --------------------------------------------------------------------- */
 
-void init_agent_memory(agent* thisAgent);
+void init_agent_memory(agent* thisAgent, bool suppressCallback = false);
 
 /* ---------------------------------------------------------------------
                             Running Soar

@@ -290,7 +290,7 @@ bool remove_input_wme(agent* thisAgent, wme* w)
 }
 
 
-void do_input_cycle(agent* thisAgent)
+void do_input_cycle(agent* thisAgent, bool suppressCallback)
 {
 
     if (thisAgent->prev_top_state && (!thisAgent->top_state))
@@ -338,7 +338,7 @@ void do_input_cycle(agent* thisAgent)
 
     /* --- if there is a top state, do the normal input cycle --- */
 
-    if (thisAgent->top_state)
+    if (thisAgent->top_state && !suppressCallback)
     {
         soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK,
                               reinterpret_cast<soar_call_data>(NORMAL_INPUT_CYCLE));
